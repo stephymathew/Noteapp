@@ -251,17 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           height: 10,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              onPressed: () {},
-                              icon: FaIcon(FontAwesomeIcons.google),
-                              color: Colors.black,
-                              iconSize: 50,
-                            ),
-                          ],
-                        )
+                       
                       ],
                     ),
                   ),
