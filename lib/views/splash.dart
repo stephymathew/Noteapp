@@ -1,16 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:my_note_app/controller/auth_services.dart';
 import 'package:my_note_app/views/SignUp.dart';
+import 'package:my_note_app/views/home.dart';
 import 'package:my_note_app/views/welcome.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key});
-
+  const SplashScreen({Key? key, required this.islogin});
+  final bool islogin;
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -28,10 +31,15 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     _controller.forward();
+    if (widget.islogin) {
+      AuthServices.getuid();
+    }
 
     Timer(Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => WelcomeScreen()),
+        MaterialPageRoute(
+            builder: (context) =>
+                widget.islogin ? HomeScreen() : WelcomeScreen()),
       );
     });
   }

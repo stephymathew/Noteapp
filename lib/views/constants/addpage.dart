@@ -1,25 +1,40 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:my_note_app/controller/firestore_services.dart';
+import 'package:my_note_app/models/todomodel.dart';
+import 'package:my_note_app/views/constants/constants.dart';
+import 'package:my_note_app/views/home.dart';
 
 class PageScreen extends StatefulWidget {
-  const PageScreen({Key? key}) : super(key: key);
-
+  const PageScreen({Key? key, this.todo}) : super(key: key);
+  final Todo? todo;
   @override
   State<PageScreen> createState() => _PageScreenState();
 }
 
 class _PageScreenState extends State<PageScreen> {
-  Color _selectedColor = Colors.black;
+  int _selectedColor = 0;
   DateTime _selectedDate = DateTime.now();
-  
-bool isPinned = false;
 
- void togglePin() {
-  setState(() {
-    isPinned = !isPinned;
-  });
-}
-
+  bool isPinned = false;
+  TextEditingController _headcontroller = TextEditingController();
+  TextEditingController _descriptioncontroller = TextEditingController();
+  // void togglePin() {
+  //   setState(() {
+  //     isPinned = !isPinned;
+  //   });
+  // }
+  @override
+  void initState() {
+    if (widget.todo != null) {
+      _headcontroller.text = widget.todo!.header ?? "";
+      _descriptioncontroller.text = widget.todo!.description ?? "";
+      _selectedDate = DateTime.parse(widget.todo!.date!);
+      _selectedColor = widget.todo!.color ?? 0;
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,57 +54,119 @@ bool isPinned = false;
                     ),
                     Row(
                       children: [
-                        Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: const Color.fromARGB(255, 119, 109, 109),
-                          ),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_outlined,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 180),
-                          Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            togglePin();
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => HomeScreen(),
+                                ));
                           },
-                          icon: Center(
-                            child: Icon(
-                              Icons.push_pin_outlined,
-                              color: isPinned
-                                  ? const Color.fromARGB(255, 126, 20, 12) // Change to pinned color
-                                  : const Color.fromARGB(255, 211, 197, 197),
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: const Color.fromARGB(255, 119, 109, 109),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_ios_new_outlined,
+                              color: Colors.white,
                             ),
                           ),
                         ),
-                      ),
+
+                        SizedBox(width: 180),
+                        // Container(
+                        //   height: 40,
+                        //   width: 40,
+                        //   decoration: BoxDecoration(
+                        //     border: Border.all(color: Colors.white),
+                        //     borderRadius: BorderRadius.circular(20),
+                        //   ),
+                        //   child: IconButton(
+                        //     onPressed: () {
+                        //       togglePin();
+                        //     },
+                        //     icon: Center(
+                        //       child: Icon(
+                        //         Icons.push_pin_outlined,
+                        //         color: isPinned
+                        //             ? const Color.fromARGB(255, 126, 20, 12)
+                        //             : const Color.fromARGB(255, 211, 197, 197),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         Spacer(),
-                        Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: const Color.fromARGB(255, 119, 109, 109),
-                          ),
-                          child: const Icon(
-                            Icons.save_alt_sharp,
-                            color: Colors.white,
+                        GestureDetector(
+                          onTap: () async {
+                            if (_headcontroller.text.isEmpty) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text("Please enter header"),
+                              ));
+                            } else if (_descriptioncontroller.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text("Please enter description")));
+                            } else if (widget.todo != null) {
+                              final value = await FireStoreServices.updateTodo(
+                                  todo: Todo(
+                                      id: widget.todo!.id,
+                                      header: _headcontroller.text,
+                                      description: _descriptioncontroller.text,
+                                      color: _selectedColor,
+                                      date: _selectedDate.toString(),
+                                      pin: isPinned));
+                              if (value) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Note Updated ")));
+                                Navigator.pop(context);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content:
+                                            Text("failed to update Note")));
+                              }
+                            } else {
+                              final value = await FireStoreServices.saveTodo(
+                                  todo: Todo(
+                                      header: _headcontroller.text,
+                                      description: _descriptioncontroller.text,
+                                      color: _selectedColor,
+                                      date: _selectedDate.toString(),
+                                      pin: isPinned));
+                              if (value) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Note Added ")));
+                                Navigator.pop(context);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text("failed to add Note")));
+                              }
+                            }
+                          },
+                          child: Container(
+                            height: 40,
+                            width: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: const Color.fromARGB(255, 119, 109, 109),
+                            ),
+                            child: const Icon(
+                              Icons.save_alt_sharp,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-                    const TextField(
+                    TextField(
+                      controller: _headcontroller,
                       maxLines: null,
                       style: TextStyle(color: Colors.white, fontSize: 20),
                       decoration: InputDecoration(
@@ -182,13 +259,14 @@ bool isPinned = false;
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
                       child: TextField(
-                        maxLines: null,
+                        controller: _descriptioncontroller,
+                        maxLines: 8,
                         style: TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           hintText: "Description",
                           hintStyle: TextStyle(color: Colors.grey),
                           filled: true,
-                          fillColor: _selectedColor,
+                          fillColor: colorPalette[_selectedColor],
                           enabledBorder: OutlineInputBorder(
                             borderSide: BorderSide(color: Colors.white),
                             borderRadius: BorderRadius.circular(20),
@@ -213,11 +291,12 @@ bool isPinned = false;
               scrollDirection: Axis.horizontal,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: _colorPalette.map((color) {
+                children: colorPalette.map((color) {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        _selectedColor = color;
+                        _selectedColor = colorPalette
+                            .indexWhere((element) => element == color);
                       });
                     },
                     child: Container(
@@ -245,18 +324,4 @@ bool isPinned = false;
       ),
     );
   }
-
-  final List<Color> _colorPalette = [
-    Color.fromARGB(192, 226, 77, 66),
-    Color.fromARGB(255, 173, 10, 73),
-    Color.fromARGB(255, 15, 79, 131),
-    Color.fromARGB(255, 224, 110, 57),
-    const Color.fromARGB(255, 155, 61, 172),
-    const Color.fromARGB(255, 19, 97, 107),
-    Colors.teal,
-    Colors.black,
-  ];
 }
-
-
-

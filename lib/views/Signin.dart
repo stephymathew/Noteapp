@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/widgets.dart';
+import 'package:my_note_app/controller/auth_services.dart';
+import 'package:my_note_app/views/SignUp.dart';
+import 'package:my_note_app/views/home.dart';
 
 class SigninScreen extends StatefulWidget {
   SigninScreen({Key? key});
@@ -9,6 +12,9 @@ class SigninScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<SigninScreen> {
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+ 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -34,8 +40,7 @@ class _LoginScreenState extends State<SigninScreen> {
                         const SizedBox(height: 40),
                         Text("LOG IN",
                             style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 30)),
+                                fontWeight: FontWeight.bold, fontSize: 30)),
                         const Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -46,9 +51,6 @@ class _LoginScreenState extends State<SigninScreen> {
                             ),
                           ],
                         ),
-                       
-                       
-                    
                         const SizedBox(height: 40),
                         Container(
                           height: 55,
@@ -60,9 +62,10 @@ class _LoginScreenState extends State<SigninScreen> {
                                   width: 2.8),
                               borderRadius: BorderRadius.circular(20)),
                           child: TextFormField(
+                            controller: _usernameController,
                             decoration: const InputDecoration(
-                              labelText: "Username",
-                              labelStyle: TextStyle(color: Colors.black),
+                              hintText: "email",
+                              hintStyle: TextStyle(color: Colors.black),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 15),
@@ -81,10 +84,11 @@ class _LoginScreenState extends State<SigninScreen> {
                                   width: 2.8),
                               borderRadius: BorderRadius.circular(20)),
                           child: TextFormField(
+                            controller: _passwordController,
                             keyboardType: TextInputType.name,
                             decoration: const InputDecoration(
-                              labelText: "Password",
-                              labelStyle: TextStyle(color: Colors.black),
+                              hintText: "Password",
+                              hintStyle: TextStyle(color: Colors.black),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 15),
@@ -93,49 +97,71 @@ class _LoginScreenState extends State<SigninScreen> {
                             style: const TextStyle(color: Colors.black),
                           ),
                         ),
-                         const Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Reset your password",
-                              style: TextStyle(fontWeight: FontWeight.w900),
-                            ),
-                          ],
-                        ),
+                        
                         const SizedBox(
                           height: 40,
                         ),
-                        Container(
-                          height: 55,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: const Color.fromARGB(255, 77, 26, 7),
-                          ),
-                          child: const Center(
-                              child: Text(
-                            "Log In",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 23,
-                              color: Color.fromARGB(255, 250, 194, 109),
+                        GestureDetector(
+                          onTap: () async {
+                            final name = _usernameController.text.trim();
+                            final password = _passwordController.text.trim();
+                            final value =await validate(context, name, password);
+                            if (value == true) {
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => HomeScreen(),
+                                  ),(route) => false,
+                                  );
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text("Something went wrong "),
+                              ));
+                            }
+                          },
+                          child: Container(
+                            height: 55,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: const Color.fromARGB(255, 77, 26, 7),
                             ),
-                          )),
+                            child: const Center(
+                                child: Text(
+                              "Log In",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 23,
+                                color: Color.fromARGB(255, 250, 194, 109),
+                              ),
+                            )),
+                          ),
                         ),
                         const SizedBox(height: 5),
-                        const Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text(
-                              "Having No Account Please Tap Here",
-                              style: TextStyle(fontWeight: FontWeight.w900,),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            LoginScreen()));
+                              },
+                              child: const Text(
+                                "Having No Account Please Tap Here",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(
                           height: 20,
                         ),
-                       
                       ],
                     ),
                   ),
@@ -146,5 +172,35 @@ class _LoginScreenState extends State<SigninScreen> {
         ),
       ),
     );
+  }
+}
+
+Future<bool> validate(
+  BuildContext context,
+  String name,
+  String password,
+) async {
+  if (name.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("please enter a valid username"),
+    ));
+    return false;
+  } else if (password.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Please enter a valid password "),
+      ),
+    );
+    return false;
+  } else {
+    final value = await AuthServices.signIn(
+      name,
+      password,
+    );
+    if (value == AuthResults.logInSuccess) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
