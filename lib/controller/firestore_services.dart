@@ -24,7 +24,7 @@ class FireStoreServices {
       await instance.set(todo.toJson(todo));
       return true;
     } catch (e) {
-      print(e);
+      // print("Error saving todo: $e");
       return false;
     }
   }
@@ -39,11 +39,10 @@ class FireStoreServices {
           .doc(user!.uid)
           .collection("todos")
           .doc(todo.id);
-      todo.id = instance.id;
       await instance.update(todo.toJson(todo));
       return true;
     } catch (e) {
-      print(e);
+      // print("Error updating todo: $e");
       return false;
     }
   }

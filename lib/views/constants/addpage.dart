@@ -1,14 +1,16 @@
-import 'package:flutter/cupertino.dart';
+
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:my_note_app/controller/firestore_services.dart';
 import 'package:my_note_app/models/todomodel.dart';
 import 'package:my_note_app/views/constants/constants.dart';
 import 'package:my_note_app/views/home.dart';
 
 class PageScreen extends StatefulWidget {
-  const PageScreen({Key? key, this.todo}) : super(key: key);
+  const PageScreen({super.key, this.todo});
   final Todo? todo;
+
   @override
   State<PageScreen> createState() => _PageScreenState();
 }
@@ -16,15 +18,12 @@ class PageScreen extends StatefulWidget {
 class _PageScreenState extends State<PageScreen> {
   int _selectedColor = 0;
   DateTime _selectedDate = DateTime.now();
-
   bool isPinned = false;
-  TextEditingController _headcontroller = TextEditingController();
-  TextEditingController _descriptioncontroller = TextEditingController();
-  // void togglePin() {
-  //   setState(() {
-  //     isPinned = !isPinned;
-  //   });
-  // }
+  final TextEditingController _headcontroller = TextEditingController();
+  final TextEditingController _descriptioncontroller = TextEditingController();
+  final FocusNode _headerFocusNode = FocusNode();
+  final FocusNode _descriptionFocusNode = FocusNode();
+
   @override
   void initState() {
     if (widget.todo != null) {
@@ -59,7 +58,7 @@ class _PageScreenState extends State<PageScreen> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => HomeScreen(),
+                                  builder: (context) => const HomeScreen(),
                                 ));
                           },
                           child: Container(
@@ -75,42 +74,16 @@ class _PageScreenState extends State<PageScreen> {
                             ),
                           ),
                         ),
-
-                        SizedBox(width: 180),
-                        // Container(
-                        //   height: 40,
-                        //   width: 40,
-                        //   decoration: BoxDecoration(
-                        //     border: Border.all(color: Colors.white),
-                        //     borderRadius: BorderRadius.circular(20),
-                        //   ),
-                        //   child: IconButton(
-                        //     onPressed: () {
-                        //       togglePin();
-                        //     },
-                        //     icon: Center(
-                        //       child: Icon(
-                        //         Icons.push_pin_outlined,
-                        //         color: isPinned
-                        //             ? const Color.fromARGB(255, 126, 20, 12)
-                        //             : const Color.fromARGB(255, 211, 197, 197),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                        Spacer(),
+                        const SizedBox(width: 180),
+                        const Spacer(),
                         GestureDetector(
                           onTap: () async {
                             if (_headcontroller.text.isEmpty) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text("Please enter header"),
-                              ));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Please enter header")));
                             } else if (_descriptioncontroller.text.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content:
-                                          Text("Please enter description")));
+                                  const SnackBar(content: Text("Please enter description")));
                             } else if (widget.todo != null) {
                               final value = await FireStoreServices.updateTodo(
                                   todo: Todo(
@@ -122,15 +95,14 @@ class _PageScreenState extends State<PageScreen> {
                                       pin: isPinned));
                               if (value) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("Note Updated ")));
+                                    const SnackBar(content: Text("Note Updated ")));
                                 Navigator.pop(context);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content:
-                                            Text("failed to update Note")));
+                                    const SnackBar(content: Text("Failed to update Note")));
                               }
                             } else {
+                              print("save todo ontap ");
                               final value = await FireStoreServices.saveTodo(
                                   todo: Todo(
                                       header: _headcontroller.text,
@@ -140,12 +112,11 @@ class _PageScreenState extends State<PageScreen> {
                                       pin: isPinned));
                               if (value) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text("Note Added ")));
+                                    const SnackBar(content: Text("Note Added ")));
                                 Navigator.pop(context);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text("failed to add Note")));
+                                    const SnackBar(content: Text("Failed to add Note")));
                               }
                             }
                           },
@@ -157,7 +128,7 @@ class _PageScreenState extends State<PageScreen> {
                               color: const Color.fromARGB(255, 119, 109, 109),
                             ),
                             child: const Icon(
-                              Icons.save_alt_sharp,
+                              Icons.file_download_done_sharp,
                               color: Colors.white,
                             ),
                           ),
@@ -166,15 +137,14 @@ class _PageScreenState extends State<PageScreen> {
                     ),
                     const SizedBox(height: 20),
                     TextField(
+                      focusNode: _headerFocusNode,
                       controller: _headcontroller,
                       maxLines: null,
-                      style: TextStyle(color: Colors.white, fontSize: 20),
-                      decoration: InputDecoration(
+                      style: const TextStyle(color: Colors.white, fontSize: 20),
+                      decoration: const InputDecoration(
                         hintText: "Header",
                         hintStyle: TextStyle(color: Colors.grey, fontSize: 15),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
+                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide()),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
                         ),
@@ -184,7 +154,7 @@ class _PageScreenState extends State<PageScreen> {
                       height: 20,
                     ),
                     Container(
-                      margin: EdgeInsets.all(0),
+                      margin: const EdgeInsets.all(0),
                       height: 55,
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -197,11 +167,11 @@ class _PageScreenState extends State<PageScreen> {
                         child: Center(
                           child: Row(
                             children: [
-                              Text(
-                                "due date",
+                              const Text(
+                                "Due date",
                                 style: TextStyle(color: Colors.white),
                               ),
-                              Spacer(),
+                              const Spacer(),
                               GestureDetector(
                                 onTap: () async {
                                   DateTime? pickedDate = await showDatePicker(
@@ -223,8 +193,7 @@ class _PageScreenState extends State<PageScreen> {
                                     height: 40,
                                     width: 120,
                                     decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                          255, 104, 92, 92),
+                                      color: const Color.fromARGB(255, 104, 92, 92),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Padding(
@@ -233,13 +202,11 @@ class _PageScreenState extends State<PageScreen> {
                                         child: Row(
                                           children: [
                                             Text(
-                                              "${_selectedDate.toLocal()}"
-                                                  .split(' ')[0],
-                                              style: TextStyle(
-                                                  color: Colors.white),
+                                              "${_selectedDate.toLocal()}".split(' ')[0],
+                                              style: const TextStyle(color: Colors.white),
                                             ),
-                                            Spacer(),
-                                            Icon(
+                                            const Spacer(),
+                                            const Icon(
                                               Icons.arrow_downward_rounded,
                                               color: Colors.white,
                                               size: 15,
@@ -258,24 +225,31 @@ class _PageScreenState extends State<PageScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20),
-                      child: TextField(
-                        controller: _descriptioncontroller,
-                        maxLines: 8,
-                        style: TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: "Description",
-                          hintStyle: TextStyle(color: Colors.grey),
-                          filled: true,
-                          fillColor: colorPalette[_selectedColor],
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.circular(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextField(
+                            controller: _descriptioncontroller,
+                            focusNode: _descriptionFocusNode,
+                            maxLines: 8,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: "Description",
+                              hintStyle: const TextStyle(color: Colors.grey),
+                              filled: true,
+                              fillColor: colorPalette[_selectedColor],
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.white),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: Colors.white),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ),
                   ],
@@ -295,8 +269,7 @@ class _PageScreenState extends State<PageScreen> {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        _selectedColor = colorPalette
-                            .indexWhere((element) => element == color);
+                        _selectedColor = colorPalette.indexWhere((element) => element == color);
                       });
                     },
                     child: Container(
@@ -308,9 +281,7 @@ class _PageScreenState extends State<PageScreen> {
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(5),
                         border: Border.all(
-                          color: _selectedColor == color
-                              ? Colors.white
-                              : Colors.transparent,
+                          color: _selectedColor == color ? Colors.white : Colors.transparent,
                           width: 2,
                         ),
                       ),

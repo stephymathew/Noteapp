@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:my_note_app/controller/auth_services.dart';
 import 'package:my_note_app/views/Signin.dart';
 import 'package:my_note_app/views/home.dart';
@@ -16,10 +16,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController _namecontroller = TextEditingController();
-  TextEditingController _emailcontroller = TextEditingController();
-  TextEditingController _passwordcontroller = TextEditingController();
-  TextEditingController _conformpasswordcontroller = TextEditingController();
+  final TextEditingController _namecontroller = TextEditingController();
+  final TextEditingController _emailcontroller = TextEditingController();
+  final TextEditingController _passwordcontroller = TextEditingController();
+  final TextEditingController _conformpasswordcontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -195,14 +195,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => HomeScreen(),
+                                  builder: (context) => const HomeScreen(),
 
                                 ),
                                 (route) => false,
                               );
                             } else {
                               ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
+                                  .showSnackBar(const SnackBar(
                                 content: Text("Something went wrong "),
                               ));
                             }
@@ -248,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                        
@@ -267,28 +267,28 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<bool> validate(BuildContext context, String email, String password,
       String conformpassword, String name) async {
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("please enter a valid username"),
       ));
       return false;
     } else if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Please enter a valid email "),
       ));
       return false;
     } else if (password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Please enter a valid password "),
       ));
       return false;
     } else if (conformpassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Please enter a valid confirmpassword "),
       ));
       return false;
     } else if (password != conformpassword) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("password is not match")));
+          .showSnackBar(const SnackBar(content: Text("password is not match")));
       return false;
     } else {
       final value = await AuthServices.signupUser(

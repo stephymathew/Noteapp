@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:my_note_app/controller/auth_services.dart';
 import 'package:my_note_app/models/todomodel.dart';
@@ -17,12 +16,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  List<Widget> bodyitems = [ListHome(), PageScreen(), PageScreen()];
+  List<Widget> bodyitems = [const ListHome(), const PageScreen(), const PageScreen()];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      // Add your navigation logic here
     });
   }
 
@@ -34,40 +32,22 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Scaffold(
           backgroundColor: Colors.black,
           body: bodyitems[_selectedIndex],
-         floatingActionButton: FloatingActionButton(
-  elevation: 8, 
-  backgroundColor: const Color.fromARGB(255, 121, 118, 111), 
-  hoverColor: Colors.amberAccent, 
-  child: Icon(Icons.add),
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PageScreen(),
+          floatingActionButton: FloatingActionButton(
+            elevation: 8,
+            backgroundColor: const Color.fromARGB(255, 121, 118, 111),
+            hoverColor: Colors.amberAccent,
+            child: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PageScreen(),
+                ),
+              );
+            },
+          ),
+        ),
       ),
-    );
-  },
-),
-
-      //     bottomNavigationBar: Container(
-      //       height: 80,
-      //       width: double.infinity,
-      //       child: ConvexAppBar(
-      //         style: TabStyle.react,
-      //         backgroundColor: Colors.grey[800],
-      //         items: [
-      //           TabItem(icon: Icons.filter_list, title: 'Filter'),
-      //           TabItem(icon: Icons.add, title: 'Add'),
-      //           TabItem(icon: Icons.search, title: 'Search'),
-      //         ],
-      //         initialActiveIndex: _selectedIndex,
-      //         onTap: _onItemTapped,
-      //       ),
-      //     ),
-      //   ),
-      // ),
-        )
-      )
     );
   }
 }
@@ -83,56 +63,56 @@ class ListHome extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               "Mr.Note",
               style: TextStyle(
+                
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
-           GestureDetector(
-  onTap: () {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Logout"),
-          content: Text("Are you sure you want to logout?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                AuthServices.signout();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(),
-                  ),
-                  (route) => false,
+            GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Logout"),
+                      content: const Text("Are you sure you want to logout?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            AuthServices.signout();
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                              (route) => false,
+                            );
+                          },
+                          child: const Text("Logout"),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
-              child: Text("Logout"),
+              child: const Icon(
+                Icons.exit_to_app,
+                color: Color.fromARGB(255, 225, 224, 231),
+              ),
             ),
           ],
-        );
-      },
-    );
-  },
-  child: Icon(
-    Icons.exit_to_app,
-    color: Color.fromARGB(255, 225, 224, 231),
-  ),
-),
-
-          ],
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: StreamBuilder(
             stream: FirebaseFirestore.instance
@@ -142,18 +122,12 @@ class ListHome extends StatelessWidget {
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return Center(child: const CircularProgressIndicator());
               } else if (!snapshot.hasData) {
-                return Center(child: Text("Not available"));
+                return const Center(child: Text("Not available"));
               }
               final list = snapshot.data!.docs;
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 5.0,
-                  crossAxisSpacing: 5.0,
-                  childAspectRatio: 0.9, 
-                ),
+              return ListView.builder(
                 itemCount: list.length,
                 itemBuilder: (context, index) {
                   final data = Todo().fromJson(list[index].data());
@@ -167,15 +141,14 @@ class ListHome extends StatelessWidget {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.all(10),
+                      margin: const EdgeInsets.symmetric(vertical: 5),
                       decoration: BoxDecoration(
                         color: colorPalette[data.color ?? 0].withOpacity(0.5),
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      margin: const EdgeInsets.all(5),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min, 
                         children: [
                           Text(
                             data.header ?? "",
@@ -186,20 +159,18 @@ class ListHome extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          Flexible(
-                            fit: FlexFit.loose,
-                            child: Text(
-                              data.description ?? "",
-                              style: const TextStyle(
-                                color: Color.fromARGB(255, 231, 227, 227),
-                              ),
+                          Text(
+                            data.description ?? "",
+                            style: const TextStyle(
+                              color: Color.fromARGB(255, 231, 227, 227),
                             ),
                           ),
-                        Spacer(),
+                          const SizedBox(height: 10),
                           Text(
-  DateFormat.yMMMd().add_jms().format(DateTime.parse(data.date ?? "")), 
-  style: TextStyle(color: Colors.grey),
-),
+                            DateFormat.yMMMd().add_jms().format(
+                                DateTime.parse(data.date ?? "")),
+                            style: const TextStyle(color: Colors.grey),
+                          ),
                         ],
                       ),
                     ),
